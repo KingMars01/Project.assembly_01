@@ -7,11 +7,11 @@ title Murilo A Croce RA:22002785
    main proc
    
    
-   MOV AH,01   ;funcao de leitura do primeiro numero
-   INT 21H     ;devolve o caracter lido em AL
-   MOV bl,AL   ;agora o caracter esta em BH
+   MOV AH,01      ;funcao de leitura do primeiro numero
+   INT 21H        ;devolve o caracter lido em AL
+   MOV bl,AL      ;agora o caracter esta em BH
     
-   MOV AH,01   ;PEGA O DIGITO DA CONTA 
+   MOV AH,01      ;PEGA O DIGITO DA CONTA 
    INT 21H
    
    cmp AL,2BH     ;COMPARA SE O DIGITO EH +
@@ -61,21 +61,28 @@ title Murilo A Croce RA:22002785
    
     
    SUBTRACAO:
-   MOV AH,01   ;funcao de leitura do segundo numero
-   INT 21H     ;devolve o caracter lido em AL
-   MOV CL,AL   ;colocando valor de al em cl
+   MOV AH,01      ;funcao de leitura do segundo numero
+   INT 21H        ;devolve o caracter lido em AL
+   MOV CL,AL      ;colocando valor de al em cl
 
-   MOV AH,02  ;imprime =
+   MOV AH,02      ;imprime =
    MOV DL,61
    INT 21H
 
-  SUB BL,30h
-  SUB CL,30H 
+   SUB BL,30h
+   SUB CL,30H 
 
+   CMP BL,CL     ;SE BL<CL IRAO TROCAR DE POSICAO
+     JA PULA     
+     XCHG BL,CL  ;TROCA BL COM CL 
+     MOV AH,02  
+     MOV DL,45   ;IMPREME '-'
+     INT 21H
+  
+   PULA:
    SUB BL,CL
 
    ADD BL,30H 
-
 
    MOV AH,02
    MOV DL,BL

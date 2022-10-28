@@ -9,8 +9,9 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
   msg3 DB 10,'                     PARA MULTIPLICACAO(*), PARA DIVISAO(/)', 10, '$'
   msg4 DB 10,'                                    ', '$'
   msg5 DB '================================================================================', '$'
-  msg6 DB 10,10,'                    DESEJA REALIZAR OUTRA OPERACAO? (s/n)', 10,10, '$'
+  msg6 DB 10,10,'                     DESEJA REALIZAR OUTRA OPERACAO? (s/n)', 10,10, '$'
   msg7 DB 10,10,'                           OBRIGADO POR CALCULAR', '$'
+  msg8 DB 10,'                       NAO EH POSSIVEL DIVIDIR POR ZERO', '$'
 
 
 .code
@@ -39,14 +40,15 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
    MOV AH,02      ;imprime '='
    MOV DL,61
    INT 21H
-      
+
    CALL SOMA        ;EXECUTA A SOMA 
 
    CALL SUBTRACAO   ;EXECUTA A SUBTRACAO
 
    CALL MULT       ;EXECUTA A MULTIPLICACAO
 
-;   JE DVS         ;EXECUTA A DIVISÃO
+   CALL DIVS         ;EXECUTA A DIVISÃO
+
 
    ;FINAL
    PERG:
@@ -80,7 +82,7 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
 
 main endp
 
-VISOR PROC
+   VISOR PROC
 
    MOV AX,3
    INT 10H
@@ -263,40 +265,96 @@ VISOR PROC
         
         MULTP ENDP
         
- ;   DVS:
+   DIVS PROC
+       
+       CMP BH,2FH
+       JNE PROX4
+       CALL DVS
+       PROX4:
+       RET
+       DIVS ENDP
 
-;   MOV AH,01      ;funcao de leitura do segundo numero
- ;  INT 21H        ;devolve o caractere lido em AL
- ;  MOV CL,AL      ;colocando valor de al em cl
+       DVS PROC
 
- ;  MOV AH,02      ;imprime '='
-;   MOV DL,61
- ;  INT 21H
- ;  SUB BL,30H
- ;  SUB CL,30H
+       SUB BL,30H
+       SUB CL,30H
 
+       MOV DH,BL
+        
+       CMP CL,0
+       JE DVS0
+       CMP CL,1
+       JE DVS1
+       CMP CL,2
+       JE DVS2
+       CMP CL,3
+       JE DVS3
+       CMP CL,4
+       JE DVS4
+       CMP CL,5
+       JE DVS5
+       CMP CL,6
+       JE DVS6
+       CMP CL,7
+       JE DVS7
+       CMP CL,8
+       JE DVS8
+       CMP CL,9
+       JE DVS9
 
-;        MOV DH,BL
-;        
-;        CMP CL,0
-;        JE DVS0
-;        CMP CL,1
-;        JE DVS1
-;        CMP CL,2
-;        JE DVS2
-;        CMP CL,3
-;        JE DVS3
-;        CMP CL,4
-;        JE DVS4
-;        CMP CL,5
-;        JE DVS5
-;        CMP CL,6
-;        JE DVS6
-;        CMP CL,7
-;        JE DVS7
-;        CMP CL,8
-;        JE DVS8
-;        CMP CL,9
-;        JE DVS9
+        DVS0:
+            MOV BL,0
+            MOV AH, 09
+            MOV DX, OFFSET msg8
+            INT 21H
+            JMP FIM
+        DVS1:
+            JMP IMPRIMED
+        DVS2:
+            SHR BL,1          
+            JMP IMPRIMED
+        DVS3:
+            SHL BL,1         
+            ADD BL,DH         
+            JMP IMPRIMED
+        DVS4:
+            SHR BL,2           
+            JMP IMPRIMED           
+        DVS5:
+            SHL BL,2         
+            ADD BL,DH        
+            JMP IMPRIMED
+        DVS6:
+            MOV BH,BL
+            SHR BH,1          
+            SHR BL,2           
+            SUB BH,BL         
+            JMP IMPRIMED    
+        DVS7:
+            SHL BL,2
+            MOV CL,3
+            VOLTA77:
+            ADD BL,DH
+            LOOP VOLTA77
+            JMP IMPRIMED
+        DVS8:
+            SHR BL,3           
+            JMP IMPRIMED
+        DVS9:
+            SHL BL,3
+            ADD BL,DH
+            JMP IMPRIMED
+
+            IMPRIMED:
+            ADD BL,30h
+            MOV AH,02
+            MOV DL,BL
+            INT 21H
+
+            FIM:
+
+            RET 
+
+     DVS ENDP
 
   end main

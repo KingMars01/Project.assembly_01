@@ -10,7 +10,7 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
   msg4 DB 10,'                                    ', '$'
   msg5 DB '================================================================================', '$'
   msg6 DB 10,10,'                     DESEJA REALIZAR OUTRA OPERACAO? (s/n)', 10,10, '$'
-  msg7 DB 10,10,'                           OBRIGADO POR CALCULAR', '$'
+  msg7 DB 10,10,'                           OBRIGADO POR CALCULAR',10,10, '$'
   msg8 DB 10,'                       NAO EH POSSIVEL DIVIDIR POR ZERO', '$'
 
 
@@ -22,9 +22,8 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
 
    DNV:
 
-   CALL VISOR
+   CALL VISOR     ;abre o inicio do progama 
 
-   ;LEITURA  
    MOV AH,01      ;funcao de leitura do primeiro numero
    INT 21H        ;devolve o caractere lido em AL
    MOV bl,AL      ;agora o caractere esta em BH
@@ -37,15 +36,15 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
    INT 21H        ;devolve o caractere lido em AL
    MOV CL,AL      ;colocando valor de al em cl
 
-   MOV AH,02      ;imprime '='
+   MOV AH,02         ;imprime '='
    MOV DL,61
    INT 21H
 
-   CALL SOMA        ;EXECUTA A SOMA 
+   CALL SOMA         ;EXECUTA A SOMA 
 
-   CALL SUBTRACAO   ;EXECUTA A SUBTRACAO
+   CALL SUBTRACAO    ;EXECUTA A SUBTRACAO
 
-   CALL MULT       ;EXECUTA A MULTIPLICACAO
+   CALL MULT         ;EXECUTA A MULTIPLICACAO
 
    CALL DIVS         ;EXECUTA A DIVISÃO
 
@@ -53,38 +52,41 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
    ;FINAL
    PERG:
 
-   MOV AH, 09
-   MOV DX, OFFSET msg6
-   INT 21H
-
-   MOV AH, 09 
-   MOV DX, OFFSET msg5
-   INT 21H
-
-   MOV AH,01      ;funcao de leitura do segundo numero
-   INT 21H
-
-   CMP AL, 73H
-   JE DNV
-
-   CMP AL, 6EH
-   JNE PERG
-   
-   MOV AX,3
+   MOV BH,05H
    INT 10H
 
    MOV AH, 09
-   MOV DX, OFFSET msg7
+   MOV DX, OFFSET msg6      ;imprime msg6
    INT 21H
 
-   MOV AH,4CH
+   MOV AH, 09 
+   MOV DX, OFFSET msg5      ;imprime msg5
+   INT 21H
+
+   MOV AH,01                ;LEITURA DE 'S' E 'N'
+   INT 21H
+
+   CMP AL,'s'               ;COMPARA SE EH 's'
+   JE DNV
+
+   CMP AL, 6EH         
+   JNE PERG
+   
+   MOV AX,3                 ;limpa o console
+   INT 10H
+
+   MOV AH, 09
+   MOV DX, OFFSET msg7      ;imprime msg7
+   INT 21H
+
+   MOV AH,4CH               ;finaliza o progama 
    INT 21H
 
 main endp
 
-   VISOR PROC
+   VISOR PROC             ;imprime todas mensagens de entrada
 
-   MOV AX,3
+   MOV AX,3               ;limpa o console
    INT 10H
 
    MOV AH, 09
@@ -107,15 +109,17 @@ main endp
    MOV DX, OFFSET msg4
    INT 21H
 
+   RET
+
    VISOR ENDP
    
 
    SOMA PROC
 
-   CMP BH,2BH
-   JNE PROX
+   CMP BH,2BH      ;compara bh com digito da conta
+   JNE PROX        ;se for diferente de '+' encerra a adicao
   
-   ADD bl,cl      ;SOMA BL COM CL ( OS NUMEROS )
+   ADD bl,cl       ;SOMA BL COM CL ( OS NUMEROS )
   
    mov al, bl      ;movendo bl para al
    mov ah,0        ;zerando a primiera parte de ax
@@ -133,75 +137,75 @@ main endp
    mov dl,bl
    int 21h   
 
-   PROX:
+   PROX:           ;finaliza a adicao
    RET
 
    SOMA ENDP
    
     
    SUBTRACAO PROC
-   CMP BH,2DH
-   JNE PROX2
+   CMP BH,2DH      ;compara bh com digito '-'
+   JNE PROX2       ;se for diferente acaba a subtracao
    
-   SUB BL,30H    ;subtraindo 30h para subtracao acontecer
-   SUB CL,30H    ;com numeros decimais
+   SUB BL,30H        ;subtraindo 30h para subtracao acontecer
+   SUB CL,30H       ;com numeros decimais
 
-   CMP BL,CL     ;SE BL<CL IRAO TROCAR DE POSICAO
+   CMP BL,CL        ;SE BL<CL IRAO TROCAR DE POSICAO
      JA PULA     
-     XCHG BL,CL  ;TROCA BL COM CL 
+     XCHG BL,CL     ;TROCA BL COM CL 
      MOV AH,02  
-     MOV DL,45   ;IMPRIME '-'
+     MOV DL,45      ;IMPRIME '-'
      INT 21H
   
    PULA:
-   SUB BL,CL     ;executa a subtracao
+   SUB BL,CL        ;executa a subtracao
 
-   ADD BL,30H    ;adiciona 30h para imprimir em decimal 
+   ADD BL,30H       ;adiciona 30h para imprimir em decimal 
 
-   MOV AH,02     ;imprime o numero em bl
+   MOV AH,02        ;imprime o numero em bl
    MOV DL,BL
    INT 21h
 
-   PROX2:
+   PROX2:          ;finaliza a subtracao
    RET
 
    SUBTRACAO ENDP
  
    
-   MULT PROC
-   CMP BH,2AH
-   JNE PROX3
+   MULT PROC         ;inicia multiplicacao de verificacao
+   CMP BH,2AH        ;compara o digito em bh com '*'
+   JNE PROX3         ;se for diferente acaba a mult
    CALL MULTP
    PROX3:
    RET
    MULT ENDP
 
-   MULTP PROC
+   MULTP PROC        ;inicia a multiplicacao
 
-   SUB BL,30H
-   SUB CL,30H
+   SUB BL,30H        ;retirando 30h para realizar   
+   SUB CL,30H        ;contas apenas com os numeros reais
 
-        MOV DH,BL
+        MOV DH,BL    ;duplicando bl em dh 
         
-        CMP CL,0
+        CMP CL,0     ;se cl=0 bl*0  
         JE MULT0
-        CMP CL,1
+        CMP CL,1     ;se cl=1 bl*1
         JE MULT1
-        CMP CL,2
+        CMP CL,2     ;se cl=2 bl*2
         JE MULT2
-        CMP CL,3
+        CMP CL,3     ;se cl=3 bl*3
         JE MULT3
-        CMP CL,4
+        CMP CL,4     ;se cl=4 bl*4
         JE MULT4
-        CMP CL,5
+        CMP CL,5     ;se cl=5 bl*5
         JE MULT5
-        CMP CL,6
+        CMP CL,6     ;se cl=6 bl*6
         JE MULT6
-        CMP CL,7
+        CMP CL,7     ;se cl=7 bl*7
         JE MULT7
-        CMP CL,8
+        CMP CL,8     ;se cl=8 bl*8
         JE MULT8
-        CMP CL,9
+        CMP CL,9     ;se cl=9 bl*9
         JE MULT9
 
         MULT0:
@@ -210,24 +214,24 @@ main endp
         MULT1:
             JMP IMPRIME
         MULT2:
-            SHL BL,1           ;BL := BL*2
+            SHL BL,1           ;2BL := BL*2
             JMP IMPRIME
         MULT3:
-            SHL BL,1           ;BL := BL*2
-            ADD BL,DH          ;BL := BL*3
+            SHL BL,1           ;2BL := BL*2
+            ADD BL,DH          ;3BL := BL*2+BL
             JMP IMPRIME
         MULT4:
-            SHL BL,2           ;BL := BL*4
+            SHL BL,2           ;4BL := BL*4
             JMP IMPRIME            
         MULT5:
-            SHL BL,2           ;BL := BL*2
-            ADD BL,DH          ;BL := BL*3
+            SHL BL,2           ;4BL := BL*2
+            ADD BL,DH          ;5BL := BL*2+BL
             JMP IMPRIME
          MULT6:
-            MOV BH,BL
-            SHL BH,1          
+            
+            SHL DH,1           ;BL := BL*2
             SHL BL,2           ;BL := BL*4
-            ADD BL,BH          ;BL ;= BL*6
+            ADD BL,DH          ;BL6 ;= BL*4+BL*2
             JMP IMPRIME    
         MULT7:
             SHL BL,2

@@ -278,86 +278,47 @@ main endp
        RET
        DIVS ENDP
 
-       DVS PROC
+    DVS PROC
 
+       XOR BH,BH
+       
        SUB BL,30H
+       mov AX,bX        ;dividendo
        SUB CL,30H
+       mov bh,cl        ;divisor
 
-       MOV DH,BL
-        
-       CMP CL,0
-       JE DVS0
-       CMP CL,1
-       JE DVS1
-       CMP CL,2
-       JE DVS2
-       CMP CL,3
-       JE DVS3
-       CMP CL,4
-       JE DVS4
-       CMP CL,5
-       JE DVS5
-       CMP CL,6
-       JE DVS6
-       CMP CL,7
-       JE DVS7
-       CMP CL,8
-       JE DVS8
-       CMP CL,9
-       JE DVS9
+      mov cx,9          ;contador de loop       
+      xor bl,bl
+      xor dL,dL
+divide:
 
-        DVS0:
-            MOV BL,0
-            MOV AH, 09
-            MOV DX, OFFSET msg8
-            INT 21H
-            JMP FIM
-        DVS1:
-            JMP IMPRIMED
-        DVS2:
-            SHR BL,1          
-            JMP IMPRIMED
-        DVS3:
-            SHL BL,1         
-            ADD BL,DH         
-            JMP IMPRIMED
-        DVS4:
-            SHR BL,2           
-            JMP IMPRIMED           
-        DVS5:
-            SHL BL,2         
-            ADD BL,DH        
-            JMP IMPRIMED
-        DVS6:
-            MOV BH,BL
-            SHR BH,1          
-            SHR BL,2           
-            SUB BH,BL         
-            JMP IMPRIMED    
-        DVS7:
-            SHL BL,2
-            MOV CL,3
-            VOLTA77:
-            ADD BL,DH
-            LOOP VOLTA77
-            JMP IMPRIMED
-        DVS8:
-            SHR BL,3           
-            JMP IMPRIMED
-        DVS9:
-            SHL BL,3
-            ADD BL,DH
-            JMP IMPRIMED
+      sub ax,bx
+      jge salta
+      add ax,bx
+      mov dh,0
+      jmp salta1
+salta:
+      mov dh,1        ;quociente
+salta1:
+      SHL dl,1
+      or  dl,dh
+      SHR bx,1
+      loop  divide
 
-            IMPRIMED:
-            ADD BL,30h
-            MOV AH,02
-            MOV DL,BL
-            INT 21H
+        ADD DL,30h
+        ADD AL,30H
 
-            FIM:
+        MOV CL,DL
 
-            RET 
+        MOV AH,02 
+        MOV DL,AL
+        INT 21H
+
+        MOV AH,02 
+        MOV DL,CL
+        INT 21H
+
+        RET 
 
      DVS ENDP
 

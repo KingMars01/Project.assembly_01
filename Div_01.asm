@@ -3,9 +3,9 @@
 .code
 
 main proc 
-      mov cx,9
-      mov ax,7
-      mov bh,2
+      mov cx,9         ;contador de loop
+      mov ax,9         ;dividendo
+      mov bh,3         ;divisor
       xor bl,bl
       xor dL,dL
 divide:
@@ -16,12 +16,25 @@ divide:
       mov dh,0
       jmp salta1
 salta:
-      mov dh,1
+      mov dh,1        ;quociente
 salta1:
-      shl dl,1
+      SHL dl,1
       or  dl,dh
-      shr bx,1
+      SHR bx,1
       loop  divide
+
+      ADD DL,30h
+      ADD AL,30h
+
+      MOV CL,DL
+
+      MOV AH,02H
+      MOV DL,AL
+      INT 21H
+
+      MOV DL,CL
+      INT 21h
+
       mov ah,4CH
       int 21H
 main endp

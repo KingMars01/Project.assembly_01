@@ -113,7 +113,6 @@ main endp
 
    VISOR ENDP
    
-
    SOMA PROC
 
    CMP BH,2BH      ;compara bh com digito da conta
@@ -141,8 +140,7 @@ main endp
    RET
 
    SOMA ENDP
-   
-    
+       
    SUBTRACAO PROC
    CMP BH,2DH      ;compara bh com digito '-'
    JNE PROX2       ;se for diferente acaba a subtracao
@@ -170,7 +168,6 @@ main endp
    RET
 
    SUBTRACAO ENDP
- 
    
    MULT PROC         ;inicia multiplicacao de verificacao
    CMP BH,2AH        ;compara o digito em bh com '*'
@@ -185,113 +182,64 @@ main endp
    SUB BL,30H        ;retirando 30h para realizar   
    SUB CL,30H        ;contas apenas com os numeros reais
 
-        MOV DH,BL    ;duplicando bl em dh 
-        
-        CMP CL,0     ;se cl=0 bl*0  
-        JE MULT0
-        CMP CL,1     ;se cl=1 bl*1
-        JE MULT1
-        CMP CL,2     ;se cl=2 bl*2
-        JE MULT2
-        CMP CL,3     ;se cl=3 bl*3
-        JE MULT3
-        CMP CL,4     ;se cl=4 bl*4
-        JE MULT4
-        CMP CL,5     ;se cl=5 bl*5
-        JE MULT5
-        CMP CL,6     ;se cl=6 bl*6
-        JE MULT6
-        CMP CL,7     ;se cl=7 bl*7
-        JE MULT7
-        CMP CL,8     ;se cl=8 bl*8
-        JE MULT8
-        CMP CL,9     ;se cl=9 bl*9
-        JE MULT9
+        xor bh,bh       ;agora bx esta com bh e bl corretos
+        MOV DX,BX
+        MOV BL,CL 
 
-        MULT0:
-            MOV BL,0
-            JMP IMPRIME
-        MULT1:
-            JMP IMPRIME
-        MULT2:
-            SHL BL,1           ;2BL := BL*2
-            JMP IMPRIME
-        MULT3:
-            SHL BL,1           ;2BL := BL*2
-            ADD BL,DH          ;3BL := BL*2+BL
-            JMP IMPRIME
-        MULT4:
-            SHL BL,2           ;4BL := BL*4
-            JMP IMPRIME            
-        MULT5:
-            SHL BL,2           ;4BL := BL*2
-            ADD BL,DH          ;5BL := BL*2+BL
-            JMP IMPRIME
-         MULT6:
-            
-            SHL DH,1           ;BL := BL*2
-            SHL BL,2           ;BL := BL*4
-            ADD BL,DH          ;BL6 ;= BL*4+BL*2
-            JMP IMPRIME    
-        MULT7:
-            SHL BL,2
-            MOV CL,3
-            VOLTA7:
-            ADD BL,DH
-            LOOP VOLTA7
-            JMP IMPRIME
-        MULT8:
-            SHL BL,3           ;AX := AX*8
-            JMP IMPRIME
-        MULT9:
-            SHL BL,3
-            ADD BL,DH
-            JMP IMPRIME                                                                                              
-        
-    IMPRIME:
-        MOV CL,10
-        MOV AL,BL
-        XOR AH,AH
-        DIV CL
-        MOV CL,AL
-        MOV BL,AH
+        XOR AX, AX    ;PRODUTO
+        MOV CX, 8     ;CONTADOR
 
-        MOV AH,02
-        ADD CL,30H
-        MOV DL,CL
+        ;CALL MULT
+
+        VOLTA:    
+            SHR BL, 1
+            JNC FINAL
+        
+            ADD AX,DX
+
+        FINAL:
+            SHL DX, 1    
+            LOOP VOLTA
+        MOV BL,10
+        DIV BL
+        MOV DL,AL
+        MOV DH,AH
+
+        MOV AH, 02
+        ADD DL,30H
         INT 21h
 
-        ADD BL,30h
-        MOV DL,BL
-        INT 21h 
-        
-        RET
+        MOV DL,DH
+        ADD DL,30H
+        INT 21H
         
         MULTP ENDP
         
    DIVS PROC
        
-       CMP BH,2FH
-       JNE PROX4
-       CALL DVS
+       CMP BH,2FH    ;confere se foi digitado '/'
+       JNE PROX4     ;se nao acaba a divisao
+       CALL DVS     ;se for inicia a dividao
        PROX4:
        RET
        DIVS ENDP
 
     DVS PROC
-
+       
        XOR BH,BH
        
        SUB BL,30H
        mov AX,bX        ;dividendo
        SUB CL,30H
        mov bh,cl        ;divisor
+        
+       cmp cl,00h
+       JE fim
 
       mov cx,9          ;contador de loop       
       xor bl,bl
       xor dL,dL
 divide:
-
       sub ax,bx
       jge salta
       add ax,bx
@@ -317,7 +265,10 @@ salta1:
         MOV AH,02 
         MOV DL,CL
         INT 21H
-
+    fim:
+       MOV AH, 09
+       MOV DX, OFFSET msg8
+       INT 21H
         RET 
 
      DVS ENDP

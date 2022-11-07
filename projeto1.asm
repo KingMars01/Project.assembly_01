@@ -12,6 +12,8 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
   msg6 DB 10,10,'                     DESEJA REALIZAR OUTRA OPERACAO? (s/n)', 10,10, '$'
   msg7 DB 10,10,'                           OBRIGADO POR CALCULAR',10,10, '$'
   msg8 DB 10,'                       NAO EH POSSIVEL DIVIDIR POR ZERO', '$'
+  msg9 DB 10,'                            RESTO: ', '$'
+  msg10 DB,', QUOCIENTE: ', '$'
 
 
 .code
@@ -28,7 +30,7 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
    INT 21H        ;devolve o caractere lido em AL
    MOV bl,AL      ;agora o caractere esta em BH
     
-   MOV AH,01      ;PEGA O DIGITO DA CONTA 
+   MOV AH,01      ;pega o digito da conta
    INT 21H
    MOV BH,AL
 
@@ -47,7 +49,6 @@ title Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
    CALL MULT         ;EXECUTA A MULTIPLICACAO
 
    CALL DIVS         ;EXECUTA A DIVISÃO
-
 
    ;FINAL
    PERG:
@@ -116,9 +117,9 @@ main endp
    SOMA PROC
 
    CMP BH,2BH      ;compara bh com digito da conta
-   JNE PROX        ;se for diferente de '+' encerra a adicao
+   JNE PROX        ;se for diferente de '+' acaba a soma
   
-   ADD bl,cl       ;SOMA BL COM CL ( OS NUMEROS )
+   ADD bl,cl       ;soma bl com cl (os numeros)
   
    mov al, bl      ;movendo bl para al
    mov ah,0        ;zerando a primiera parte de ax
@@ -143,7 +144,7 @@ main endp
        
    SUBTRACAO PROC
    CMP BH,2DH      ;compara bh com digito '-'
-   JNE PROX2       ;se for diferente acaba a subtracao
+   JNE PROX2       ;se for diferente acaba a subtraçao
    
    SUB BL,30H        ;subtraindo 30h para subtracao acontecer
    SUB CL,30H       ;com numeros decimais
@@ -169,10 +170,10 @@ main endp
 
    SUBTRACAO ENDP
    
-   MULT PROC         ;inicia multiplicacao de verificacao
+   MULT PROC         ;inicia a verificaçao do caractere
    CMP BH,2AH        ;compara o digito em bh com '*'
-   JNE PROX3         ;se for diferente acaba a mult
-   CALL MULTP
+   JNE PROX3         ;se for diferente acaba a multiplicaçao
+   CALL MULTP        ;se for igual, executa a multiplicaçao
    PROX3:
    RET
    MULT ENDP
@@ -183,23 +184,22 @@ main endp
    SUB CL,30H        ;contas apenas com os numeros reais
 
         xor bh,bh       ;agora bx esta com bh e bl corretos
-        MOV DX,BX
-        MOV BL,CL 
+        MOV DX,BX       ;colocando o multiplicando em dx
+        MOV BL,CL       ;colocando o multiplicador e bl
 
-        XOR AX, AX    ;PRODUTO
-        MOV CX, 8     ;CONTADOR
+        XOR AX, AX    ;produto
+        MOV CX, 4     ;contador
 
-        ;CALL MULT
-
-        VOLTA:    
-            SHR BL, 1
-            JNC FINAL
+        VOLTA:              
+            SHR BL, 1     
+            JNC FINAL    ;se no resultado de bl nao tiver carry, pula
         
-            ADD AX,DX
+            ADD AX,DX    ;somando o valor de dx ao produto
 
         FINAL:
-            SHL DX, 1    
-            LOOP VOLTA
+            SHL DX, 1    ;multiplica dx por 2
+            LOOP VOLTA   ;loop de 8 vezes
+
         MOV BL,10
         DIV BL
         MOV DL,AL
@@ -229,48 +229,59 @@ main endp
        XOR BH,BH
        
        SUB BL,30H
-       mov AX,bX        ;dividendo
+       MOV AX,BX        ;dividendo
        SUB CL,30H
-       mov bh,cl        ;divisor
+       MOV BH,CL        ;divisor
         
-       cmp cl,00h
-       JE fim
+       CMP CL,00h
+       JE FIM
 
-      mov cx,9          ;contador de loop       
-      xor bl,bl
-      xor dL,dL
-divide:
-      sub ax,bx
-      jge salta
-      add ax,bx
-      mov dh,0
-      jmp salta1
-salta:
-      mov dh,1        ;quociente
-salta1:
-      SHL dl,1
-      or  dl,dh
-      SHR bx,1
-      loop  divide
+      MOV CX,9          ;contador de loop       
+      XOR BL,BL
+      XOR DL,DL
+DIVIDE:
+      SUB AX,BX
+      JGE SALTA
+      ADD AX,BX
+      MOV DH,0
+      JMP SALTA1
+SALTA:
+      MOV DH,1        ;quociente
+SALTA1:
+      SHL DL,1
+      OR  DL,DH
+      SHR BX,1
+      LOOP DIVIDE
 
         ADD DL,30h
         ADD AL,30H
 
         MOV CL,DL
+        MOV BL, AL
+
+        MOV AH, 09
+        MOV DX, OFFSET msg9
+        INT 21H
 
         MOV AH,02 
-        MOV DL,AL
+        MOV DL,BL
+        INT 21H
+
+        MOV AH, 09
+        MOV DX, OFFSET msg10
         INT 21H
 
         MOV AH,02 
         MOV DL,CL
         INT 21H
-    fim:
+        RET
+        
+    FIM:
        MOV AH, 09
        MOV DX, OFFSET msg8
        INT 21H
-        RET 
+       RET 
 
      DVS ENDP
 
-  end main
+  END MAIN

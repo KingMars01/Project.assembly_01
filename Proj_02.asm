@@ -32,12 +32,19 @@ TITLE SUDOKU
         INT 21h
     ENDM
 
-    DIVISAO1 MACRO ; PULA LINHA + IMPRESSÃO
+    DIVISAOM MACRO ; PULA LINHA + IMPRESSÃO
         MOV AH,09
         LEA DX,DIVISAO
         INT 21h 
                 
-         
+    ENDM 
+
+    FECHAM MACRO ; IMPRESSAO DE '------'
+        
+        MOV AH,09
+        LEA DX,FECHA
+        INT 21h 
+                
     ENDM 
     
     SPACE MACRO
@@ -52,6 +59,12 @@ TITLE SUDOKU
         INC SI 
     ENDM 
     
+    TABMACRO MACRO 
+        MOV AH,02 
+        MOV DL,09h
+        INT 21h
+         
+        ENDM
 
     PUSHMACRO  MACRO 
         push AX
@@ -148,12 +161,15 @@ DIFICILR    DB 5,6,8, 4,7,2, 9,1,3
             DB 8,5,1, 3,9,4, 7,2,6
             DB 4,7,3, 2,6,5, 8,9,1,'$'
 
-;MSG1    db 10,'            SUDOKU GAME','$'
-;LINHA2  DB 10,13,204,2 DUP(11 DUP (205),206),11 DUP (205),185,'$'
-;MSG2    DB 10,'        SELECIONE A DIFICULDADE:','$'
-;MSG3    DB 10,'        FACIL(1) MEDIO(2) DIFICIL(3)','$'
-DIVISAO db  179,'-------',179,'-------',179,'-------',179,'$'
-OLA DB 'OLA ','$'
+MSG1    DB     '                  SUDOKU GAME (FACIL)',10,'$'
+MSG2    DB 10, '        SELECIONE A DIFICULDADE:','$'
+MSG3    DB 10, '        FACIL(1) MEDIO(2) DIFICIL(3)','$'
+MSG4    DB 10, '================================================================================', '$'
+MSG5    DB     '                  SUDOKU GAME (MEDIO)',10,'$'
+MSG6    DB     '                  SUDOKU GAME (DIFICIL)',10,'$'
+DIVISAO DB 179,'-------',179,'-------',179,'-------',179,'$'
+FECHA   DB     '-------------------------','$'
+
 
         
  
@@ -168,71 +184,97 @@ MAIN PROC
         LEA BX,FACIL
 
         CALL IMPRIME_M
+        CALL COMPARA_M
 
         FINALIZA_PROG
 
    MAIN ENDP 
 IMPRIME_M PROC 
         
+        PRINT MSG4
+        P_LINHA
+
         PUSHMACRO
         
         MOV AH,02
         MOV CX,LINHA
+        
+        CALL FECHAP
+        CALL SUDOKU
+        
     VOLTA:
         MOV DI,3
         XOR SI,SI  
-    
+    TABMACRO
     BARRA1
     QUADRANTE:
         
         SPACE
         IMPMATRIZ
         SPACE 
-        
         IMPMATRIZ
         SPACE
-        
         IMPMATRIZ
         SPACE
         BARRA1
-        
-               
-        DEC DI  
-       
+                 
+        DEC DI   
         JNZ QUADRANTE
         P_LINHA
-        CMP CX,4
-        JNZ OUT1 
-        DIVISAO1
-        OUT1:
-        CMP CX,7
-        JNZ OUT2
-        DIVISAO1
-        OUT2:
+        
+        CALL BARRA
+        
         ADD BX,COLUNA 
 
         LOOP VOLTA
+        CALL FECHAP
          
         POPMACRO
+        P_LINHA
+        PRINT MSG4
         RET 
     IMPRIME_M ENDP
 
-CENTER PROC 
-        MOV AH,02
-        MOV CX,12
-        MOV DL,32
-        BACK:
-        INT 21h
-        LOOP BACK
-        RET 
-    CENTER ENDP
-    
-LER PROC 
-    XOR SI,SI
-    
+COMPARA_M PROC 
 
-RET 
-LER ENDP
+
+
+    RET 
+    COMPARA_M ENDP
+
+BARRA PROC 
+        PUSHMACRO
+        CMP CX,4
+        JNZ OUT1 
+        TABMACRO
+        DIVISAOM
+        P_LINHA
+        OUT1:
+        CMP CX,7
+        JNZ OUT2
+        TABMACRO
+        DIVISAOM
+        P_LINHA
+        OUT2:
+        POPMACRO
+        RET 
+BARRA ENDP
+
+FECHAP PROC 
+    PUSHMACRO 
+    TABMACRO
+    FECHAM
+    POPMACRO 
+    RET 
+    FECHAP ENDP
+
+SUDOKU PROC 
+    PUSHMACRO
+    PRINT MSG1
+    POPMACRO
+    RET 
+    SUDOKU ENDP 
+
 
 
 

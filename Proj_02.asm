@@ -1,54 +1,65 @@
 TITLE SUDOKU
 
 .model small
+.STACK 100H
 
-       FINALIZA_PROG MACRO ;FINALIZA PROGAMA 
+    FINALIZA_PROG MACRO ;FINALIZA PROGAMA 
         MOV AH,4CH
         INT 21h
-       ENDM 
+    ENDM 
 
-      P_LINHA MACRO; PULA LINHA
+    P_LINHA MACRO; PULA LINHA
         MOV AH,02
         MOV DL,10
         INT 21h
         MOV DL,13
         INT 21h  
     ENDM 
+
+    PRINT MACRO MSG
+        LEA DX,MSG
+        MOV AH,09h
+	    INT 21h
+    ENDM
+    
     BARRA2 MACRO; IMPRIMIR "║"
         MOV DL,186
         INT 21h
     ENDM
+    
     BARRA1 MACRO; IMPRIMIR "│"
         MOV DL,179
         INT 21h
     ENDM
+    
     SPACE MACRO
         MOV DL,32
         INT 21h
     ENDM
+    
     IMPMATRIZ MACRO 
         MOV DL,[BX][SI]
-        ADD DL,30H
+        OR DL,30H
         INT 21h
         INC SI 
-        ENDM 
+    ENDM 
     
 
-       PUSHMACRO  MACRO 
+    PUSHMACRO  MACRO 
         push AX
         push BX
         push CX
         push DX
         push SI   
-       ENDM 
+    ENDM 
 
-       POPMACRO  MACRO 
+    POPMACRO  MACRO 
         pop SI
         pop DX
         pop CX
         pop BX
         pop AX 
-       ENDM
+    ENDM
  
 
 .data 
@@ -56,7 +67,7 @@ TITLE SUDOKU
 LINHA EQU 9
 
 COLUNA EQU 9
-    
+  
     FACIL   DB 0,6,0, 5,0,1, 8,0,0
             DB 4,7,3, 0,0,2, 0,0,5
             DB 5,0,1, 0,0,0, 0,2,4
@@ -106,7 +117,7 @@ COLUNA EQU 9
             DB 4,7,3, 2,6,5, 8,9,1
 
         MSG1 db 10,'            SUDOKU GAME', '$'
-        MSG2 DB 10,''
+        LINHA1 DB ,'----------------------------------------'
  
 
 .CODE 
@@ -134,26 +145,32 @@ COLUNA EQU 9
 VOLTA:
         MOV DI,3
         XOR SI,SI
-        
-        BARRA2
+
+    
+    P_LINHA
+    PRINT LINHA1
+    BARRA2
 QUADRANTE:
         
         SPACE
         IMPMATRIZ
         SPACE
         BARRA1
+        SPACE
         IMPMATRIZ
         SPACE
         BARRA1
+        SPACE
         IMPMATRIZ
         SPACE
         BARRA2
-        
+        SPACE
         
         DEC DI 
+       
         JNZ QUADRANTE
-        
         P_LINHA
+        
         ADD BX,COLUNA 
 
         LOOP VOLTA

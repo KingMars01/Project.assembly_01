@@ -82,24 +82,32 @@ TITLE SUDOKU
         pop AX 
     ENDM
  
+    COLOR MACRO ;   altera as cores de acordo com bl
+        PUSHMACRO
+        MOV BL,121 
+        XOR BH,BH
+        MOV AH,09H
+        MOV CX, 1000H
+        MOV AL, 20H
+        INT 10H
+        POPMACRO
+    ENDM
+
 
 .data 
 
 LINHA EQU 9
-
 COLUNA EQU 9
   
-FACIL       DB 0,6,0, 5,0,1, 8,0,0
-            DB 4,7,3, 0,0,2, 0,0,5
-            DB 5,0,1, 0,0,0, 0,2,4
-            
-            DB 8,1,0, 6,0,0, 0,0,0
-            DB 0,9,0, 0,0,0, 0,3,0
-            DB 3,5,7, 0,2,0, 6,0,1
-            
-            DB 0,0,5, 2,0,7, 4,8,0
-            DB 9,4,6, 1,0,0, 7,5,0
-            DB 0,0,8, 9,0,0, 0,1,0,'$'
+FACIL       DB 0,6,0,5,0,1,8,0,0
+            DB 4,7,3,0,0,2,0,0,5
+            DB 5,0,1,0,0,0,0,2,4          
+            DB 8,1,0,6,0,0,0,0,0
+            DB 0,9,0,0,0,0,0,3,0
+            DB 3,5,7,0,2,0,6,0,1     
+            DB 0,0,5,2,0,7,4,8,0
+            DB 9,4,6,1,0,0,7,5,0
+            DB 0,0,8,9,0,0,0,1,0,'$'
 
 FACILR      DB 2,6,9, 5,4,1, 8,7,3
             DB 4,7,3, 8,9,2, 1,6,5
@@ -167,6 +175,9 @@ MSG3    DB 10, '        FACIL(1) MEDIO(2) DIFICIL(3)','$'
 MSG4    DB 10, '================================================================================', '$'
 MSG5    DB     '                  SUDOKU GAME (MEDIO)',10,'$'
 MSG6    DB     '                  SUDOKU GAME (DIFICIL)',10,'$'
+MSG7    DB '         DIGITE A LINHA  :','$'
+MSG8    DB '         DIGITE A COLUNA :','$'
+MSG9    DB 'DIGITE O NUMERO DE 1 A 9 :','$'
 DIVISAO DB 179,'-------',179,'-------',179,'-------',179,'$'
 FECHA   DB     '-------------------------','$'
 
@@ -182,7 +193,7 @@ MAIN PROC
         MOV AX,@DATA
         MOV DS,AX 
         LEA BX,FACIL
-
+        COLOR
         CALL IMPRIME_M
         CALL COMPARA_M
 
@@ -191,10 +202,11 @@ MAIN PROC
    MAIN ENDP 
 IMPRIME_M PROC 
         
+        PUSHMACRO
         PRINT MSG4
         P_LINHA
 
-        PUSHMACRO
+        
         
         MOV AH,02
         MOV CX,LINHA
@@ -229,14 +241,49 @@ IMPRIME_M PROC
         LOOP VOLTA
         CALL FECHAP
          
-        POPMACRO
         P_LINHA
         PRINT MSG4
+        POPMACRO
         RET 
     IMPRIME_M ENDP
 
-COMPARA_M PROC 
 
+COMPARA_M PROC 
+        PUSHMACRO
+        P_LINHA
+        PRINT MSG7
+        MOV BX,LINHA
+        MOV AH,01
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH
+        MUL BX 
+        SUB AX,9
+        MOV BX,AX
+
+        P_LINHA
+        PRINT MSG8
+        MOV AH,01
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH 
+        SUB AL,1  
+        MOV SI,AX
+        
+        P_LINHA
+        PRINT MSG9
+        MOV AH,01
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH   
+        
+
+        MOV FACIL[BX][SI],AL
+
+        POPMACRO
+        CALL IMPRIME_M
+        PUSHMACRO
+        POPMACRO
 
 
     RET 

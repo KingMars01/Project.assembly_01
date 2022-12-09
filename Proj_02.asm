@@ -1,4 +1,4 @@
-TITLE SUDOKU
+TITLE SUDOKU , Murilo A Croce RA:22002785 , Gustavo Mota RA:22010798
 
 .model small
 .STACK 100H
@@ -98,126 +98,12 @@ TITLE SUDOKU
         POPMACRO
     ENDM
     
-    FACILMACRO MACRO
-        PUSH DS
-        PUSH ES
-        mov si, offset FACIL
-        mov di, offset MATRIZ
-        MOV CL,81
-        REP MOVSB
-        POP ES
-        POP DS
-        xor bx, bx
-        xor ch, ch 
-        REPETE1:
-        MOV AL,FACIL[BX]
-        MOV MATRIZ[BX],AL
-        INC BX
-        LOOP REPETE1
-        
-    ENDM 
-    FACILRMACRO MACRO
-        PUSH DS
-        PUSH ES
-        mov si, offset FACILR
-        mov di, offset MATRIZR
-        MOV CL,81
-        REP MOVSB
-        POP ES
-        POP DS
-        xor bx, bx
-        xor ch, ch 
-        REPETE2:
-        MOV AL,FACILR[BX]
-        MOV MATRIZR[BX],AL
-        INC BX
-        LOOP REPETE2
-    ENDM 
-    MEDIOMACRO MACRO
-        PUSHMACRO
-        mov si, offset MEDIO
-        mov di, offset MATRIZ
-        MOV CL,81
-        REP MOVSB
-        POPMACRO
-        xor bx, bx
-        xor ch, ch 
-        REPETE3:
-        MOV AL,MEDIO[BX]
-        MOV MATRIZ[BX],AL
-        INC BX
-        LOOP REPETE3
-    ENDM 
-    MEDIORMACRO MACRO
-        PUSHMACRO
-        mov si, offset MEDIOR
-        mov di, offset MATRIZR
-        MOV CL,81
-        REP MOVSB
-        POPMACRO
-        xor bx, bx
-        xor ch, ch 
-        REPETE4:
-        MOV AL,MEDIOR[BX]
-        MOV MATRIZR[BX],AL
-        INC BX
-        LOOP REPETE4
-    ENDM 
-    DIFICILMACRO MACRO
-        PUSHMACRO
-        mov si, offset DIFICIL
-        mov di, offset MATRIZ
-        MOV CL,81
-        REP MOVSB
-        POPMACRO
-        xor bx, bx
-        xor ch, ch 
-        REPETE5:
-        MOV AL,FACIL[BX]
-        MOV MATRIZ[BX],AL
-        INC BX
-        LOOP REPETE5
-    ENDM 
-    DIFICILRMACRO MACRO
-        PUSHMACRO
-        mov si, offset DIFICILR
-        mov di, offset MATRIZR
-        MOV CL,81
-        REP MOVSB
-        POPMACRO
-        xor bx, bx
-        xor ch, ch 
-        REPETE6:
-        MOV AL,DIFICILR[BX]
-        MOV MATRIZR[BX],AL
-        INC BX
-        LOOP REPETE6
-    ENDM 
-
-
-.data 
+ 
+ .data 
 
 LINHA EQU 9
 COLUNA EQU 9
-MATRIZ      DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0          
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0     
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0,'$'
 
-MATRIZR     DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0          
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0     
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0
-            DB 0,0,0,0,0,0,0,0,0,'$'
 
 FACIL       DB 0,6,0,5,0,1,8,0,0
             DB 4,7,3,0,0,2,0,0,5
@@ -307,17 +193,17 @@ MAIN PROC
         MOV ES,AX
         
         CLEAN
+        COLOR
         CALL DIFICULDADE
         CALL IMPRIME
         TOPO:
-        CALL ENTRADA
-        CALL CONFERE
+        CALL JOGO
         CALL CONFERE_TUDO
         JMP TOPO
 
    MAIN ENDP 
 DIFICULDADE PROC 
-    ;DENOVO:
+    DENOVO:
     PRINT MSG2
     PRINT MSG3
     P_LINHA
@@ -331,38 +217,30 @@ DIFICULDADE PROC
     JZ PULA5
     CMP CL,3
     JZ PULA6
-    ;JMP DENOVO
+    JMP DENOVO
     PULA4:
-    FACILMACRO
-    FACILRMACRO
+    LEA BX,FACIL
     JMP FIM1
-    PULA6:
-    JMP PULA7
-    PULA5: 
-    MEDIOMACRO
-    MEDIORMACRO
+    PULA5:
+    LEA BX,MEDIO
     JMP FIM2
-    PULA7:
-    DIFICILMACRO
-    DIFICILRMACRO
+    PULA6:
+    LEA BX,DIFICIL
     JMP FIM3 
-
     FIM1:
     FIM2:
     FIM3:
+    
     RET 
     DIFICULDADE ENDP
 
 IMPRIME PROC 
-        POPMACRO
-        
         PUSHMACRO
         CLEAN 
         COLOR
-        LEA BX,MATRIZ
         PRINT MSG4
         P_LINHA
-
+        
         MOV AH,02
         MOV CX,LINHA
         
@@ -400,8 +278,26 @@ IMPRIME PROC
         RET 
     IMPRIME ENDP
 
+JOGO PROC 
+    CMP CL,1
+    JZ PULA7
+    CMP CL,2
+    JZ PULA8
+    CMP CL,3
+    JZ PULA9
+    PULA7:
+    CALL ENTRADA_F
+    CALL CONFERE_F
+    PULA8:
+    CALL ENTRADA_M
+    CALL CONFERE_M
+    PULA9:
+    CALL ENTRADA_D
+    CALL CONFERE_D
+    RET
+JOGO ENDP
 
-ENTRADA PROC 
+ENTRADA_F PROC 
         PUSHMACRO
         P_LINHA
         PRINT MSG7
@@ -428,16 +324,80 @@ ENTRADA PROC
         XOR AH,AH
         AND AL,0FH   
         
-        MOV MATRIZ[BX][SI],AL    ;TROCANDO 0 PELO NUMERO DIGITADO
+        MOV FACIL[BX][SI],AL    ;TROCANDO 0 PELO NUMERO DIGITADO
         POPMACRO
 
     RET 
-    ENTRADA ENDP
+ENTRADA_F ENDP
 
-CONFERE PROC 
+ENTRADA_M PROC 
         PUSHMACRO
-        MOV CL,MATRIZ[BX][SI]
-        CMP CL,MATRIZR[BX][SI]
+        P_LINHA
+        PRINT MSG7
+        MOV BX,LINHA            ;ENTRADA DA LINHA
+        MOV AH,01
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH
+        MUL BX 
+        SUB AX,9
+        MOV BX,AX
+        P_LINHA
+        PRINT MSG8
+        MOV AH,01               ;ENTRADA DA COLUNA
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH 
+        SUB AL,1  
+        MOV SI,AX
+        P_LINHA
+        PRINT MSG9
+        MOV AH,01               ;ENTRADA DO DIGITO
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH   
+        
+        MOV MEDIO[BX][SI],AL    ;TROCANDO 0 PELO NUMERO DIGITADO
+        POPMACRO
+
+    RET 
+ENTRADA_M ENDP
+ENTRADA_D PROC 
+        PUSHMACRO
+        P_LINHA
+        PRINT MSG7
+        MOV BX,LINHA            ;ENTRADA DA LINHA
+        MOV AH,01
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH
+        MUL BX 
+        SUB AX,9
+        MOV BX,AX
+        P_LINHA
+        PRINT MSG8
+        MOV AH,01               ;ENTRADA DA COLUNA
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH 
+        SUB AL,1  
+        MOV SI,AX
+        P_LINHA
+        PRINT MSG9
+        MOV AH,01               ;ENTRADA DO DIGITO
+        INT 21H 
+        XOR AH,AH
+        AND AL,0FH   
+        
+        MOV DIFICIL[BX][SI],AL    ;TROCANDO 0 PELO NUMERO DIGITADO
+        POPMACRO
+
+    RET 
+ENTRADA_D ENDP
+CONFERE_F PROC 
+        PUSHMACRO
+        MOV CL,FACIL[BX][SI]
+        CMP CL,FACILR[BX][SI]
         JNZ PULA
         CALL IMPRIME
         PRINT MSG10
@@ -449,7 +409,41 @@ CONFERE PROC
     
         POPMACRO
     RET 
-    CONFERE ENDP
+    CONFERE_F ENDP
+
+CONFERE_M PROC 
+        PUSHMACRO
+        MOV CL,MEDIO[BX][SI]
+        CMP CL,MEDIOR[BX][SI]
+        JNZ PULAR1
+        CALL IMPRIME
+        PRINT MSG10
+        JMP PULAR2
+        PULAR1:
+        CALL IMPRIME
+        PRINT MSG11
+        PULAR2:
+    
+        POPMACRO
+    RET 
+    CONFERE_M ENDP
+
+CONFERE_D PROC 
+        PUSHMACRO
+        MOV CL,DIFICIL[BX][SI]
+        CMP CL,DIFICILR[BX][SI]
+        JNZ PULAR3
+        CALL IMPRIME
+        PRINT MSG10
+        JMP PULAR4
+        PULAR3:
+        CALL IMPRIME
+        PRINT MSG11
+        PULAR4:
+    
+        POPMACRO
+    RET 
+    CONFERE_D ENDP
 CONFERE_TUDO PROC 
         PUSHMACRO
         MOV CX,9
@@ -505,8 +499,5 @@ SUDOKU PROC
     POPMACRO
     RET 
     SUDOKU ENDP 
-
-
-
 
 END MAIN

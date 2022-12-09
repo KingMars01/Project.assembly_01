@@ -51,20 +51,25 @@ TITLE SUDOKU
         MOV DL,32
         INT 21h
     ENDM
+
+    CLEAN MACRO 
+        MOV AX,03
+        INT 10H
+    ENDM
     
     IMPMATRIZ MACRO 
         MOV DL,[BX][SI]
         OR DL,30H
         INT 21h
         INC SI 
-    ENDM 
+    ENDM  
     
     TABMACRO MACRO 
         MOV AH,02 
         MOV DL,09h
         INT 21h
          
-        ENDM
+    ENDM
 
     PUSHMACRO  MACRO 
         push AX
@@ -92,13 +97,128 @@ TITLE SUDOKU
         INT 10H
         POPMACRO
     ENDM
+    
+    FACILMACRO MACRO
+        PUSH DS
+        PUSH ES
+        mov si, offset FACIL
+        mov di, offset MATRIZ
+        MOV CL,81
+        REP MOVSB
+        POP ES
+        POP DS
+        xor bx, bx
+        xor ch, ch 
+        REPETE1:
+        MOV AL,FACIL[BX]
+        MOV MATRIZ[BX],AL
+        INC BX
+        LOOP REPETE1
+        
+    ENDM 
+    FACILRMACRO MACRO
+        PUSH DS
+        PUSH ES
+        mov si, offset FACILR
+        mov di, offset MATRIZR
+        MOV CL,81
+        REP MOVSB
+        POP ES
+        POP DS
+        xor bx, bx
+        xor ch, ch 
+        REPETE2:
+        MOV AL,FACILR[BX]
+        MOV MATRIZR[BX],AL
+        INC BX
+        LOOP REPETE2
+    ENDM 
+    MEDIOMACRO MACRO
+        PUSHMACRO
+        mov si, offset MEDIO
+        mov di, offset MATRIZ
+        MOV CL,81
+        REP MOVSB
+        POPMACRO
+        xor bx, bx
+        xor ch, ch 
+        REPETE3:
+        MOV AL,MEDIO[BX]
+        MOV MATRIZ[BX],AL
+        INC BX
+        LOOP REPETE3
+    ENDM 
+    MEDIORMACRO MACRO
+        PUSHMACRO
+        mov si, offset MEDIOR
+        mov di, offset MATRIZR
+        MOV CL,81
+        REP MOVSB
+        POPMACRO
+        xor bx, bx
+        xor ch, ch 
+        REPETE4:
+        MOV AL,MEDIOR[BX]
+        MOV MATRIZR[BX],AL
+        INC BX
+        LOOP REPETE4
+    ENDM 
+    DIFICILMACRO MACRO
+        PUSHMACRO
+        mov si, offset DIFICIL
+        mov di, offset MATRIZ
+        MOV CL,81
+        REP MOVSB
+        POPMACRO
+        xor bx, bx
+        xor ch, ch 
+        REPETE5:
+        MOV AL,FACIL[BX]
+        MOV MATRIZ[BX],AL
+        INC BX
+        LOOP REPETE5
+    ENDM 
+    DIFICILRMACRO MACRO
+        PUSHMACRO
+        mov si, offset DIFICILR
+        mov di, offset MATRIZR
+        MOV CL,81
+        REP MOVSB
+        POPMACRO
+        xor bx, bx
+        xor ch, ch 
+        REPETE6:
+        MOV AL,DIFICILR[BX]
+        MOV MATRIZR[BX],AL
+        INC BX
+        LOOP REPETE6
+    ENDM 
 
 
 .data 
 
 LINHA EQU 9
 COLUNA EQU 9
-  
+MATRIZ      DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0          
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0     
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0,'$'
+
+MATRIZR     DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0          
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0     
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0
+            DB 0,0,0,0,0,0,0,0,0,'$'
+
 FACIL       DB 0,6,0,5,0,1,8,0,0
             DB 4,7,3,0,0,2,0,0,5
             DB 5,0,1,0,0,0,0,2,4          
@@ -109,105 +229,140 @@ FACIL       DB 0,6,0,5,0,1,8,0,0
             DB 9,4,6,1,0,0,7,5,0
             DB 0,0,8,9,0,0,0,1,0,'$'
 
-FACILR      DB 2,6,9, 5,4,1, 8,7,3
-            DB 4,7,3, 8,9,2, 1,6,5
-            DB 5,8,1, 3,7,6, 9,2,4
-            
-            DB 8,1,2, 6,3,9, 5,4,7
-            DB 6,9,4, 7,1,5, 2,3,8
-            DB 3,5,7, 4,2,8, 6,9,1
-            
-            DB 1,3,5, 2,6,7, 4,8,9
-            DB 9,4,6, 1,8,3, 7,5,2
-            DB 7,2,8, 9,5,4, 3,1,6,'$'
+FACILR      DB 2,6,9,5,4,1,8,7,3
+            DB 4,7,3,8,9,2,1,6,5
+            DB 5,8,1,3,7,6,9,2,4
+            DB 8,1,2,6,3,9,5,4,7
+            DB 6,9,4,7,1,5,2,3,8
+            DB 3,5,7,4,2,8,6,9,1
+            DB 1,3,5,2,6,7,4,8,9
+            DB 9,4,6,1,8,3,7,5,2
+            DB 7,2,8,9,5,4,3,1,6,'$'
 
-MEDIO       DB 1,0,0, 0,0,3, 2,0,0
-            DB 3,0,0, 0,0,0, 0,5,1
-            DB 0,0,0, 0,1,0, 7,0,0
+MEDIO       DB 1,0,0,0,0,3,2,0,0
+            DB 3,0,0,0,0,0,0,5,1
+            DB 0,0,0,0,1,0,7,0,0
+            DB 0,1,0,6,0,2,0,9,4
+            DB 0,9,0,8,0,0,0,0,7
+            DB 0,7,2,0,0,0,1,0,3
+            DB 0,3,0,0,0,4,9,0,0
+            DB 0,8,0,0,0,0,4,0,0
+            DB 4,0,9,0,5,0,0,8,2,'$'
 
-            DB 0,1,0, 6,0,2, 0,9,4
-            DB 0,9,0, 8,0,0, 0,0,7
-            DB 0,7,2, 0,0,0, 1,0,3
+MEDIOR      DB 1,5,8,7,6,3,2,4,9
+            DB 3,4,7,9,2,8,6,5,1
+            DB 9,2,6,4,1,5,7,3,8
+            DB 5,1,3,6,7,2,8,9,4
+            DB 6,9,4,8,3,1,5,2,7
+            DB 8,7,2,5,4,9,1,6,3
+            DB 7,3,5,2,8,4,9,1,6
+            DB 2,8,1,3,9,6,4,7,5
+            DB 4,6,9,1,5,7,3,8,2,'$'
 
-            DB 0,3,0, 0,0,4, 9,0,0
-            DB 0,8,0, 0,0,0, 4,0,0
-            DB 4,0,9, 0,5,0, 0,8,2,'$'
+DIFICIL     DB 0,0,0,0,7,0,9,1,3
+            DB 0,0,2,9,0,0,6,0,0
+            DB 1,0,0,6,0,0,0,0,0
+            DB 0,0,0,7,0,0,5,3,0
+            DB 0,3,4,5,0,0,0,0,2
+            DB 0,8,0,0,2,0,0,4,9            
+            DB 0,2,6,0,0,0,0,4,0
+            DB 8,0,0,3,0,4,0,0,0
+            DB 0,7,0,0,0,0,0,9,1,'$'
 
-MEDIOR      DB 1,5,8, 7,6,3, 2,4,9
-            DB 3,4,7, 9,2,8, 6,5,1
-            DB 9,2,6, 4,1,5, 7,3,8
+DIFICILR    DB 5,6,8,4,7,2,9,1,3
+            DB 3,4,2,9,5,1,6,8,7
+            DB 1,9,7,6,3,8,2,5,4           
+            DB 2,1,9,7,4,6,5,3,8
+            DB 7,3,4,5,8,9,1,6,2
+            DB 6,8,5,1,2,3,4,7,9          
+            DB 9,2,6,8,1,7,3,4,5
+            DB 8,5,1,3,9,4,7,2,6
+            DB 4,7,3,2,6,5,8,9,1,'$'
 
-            DB 5,1,3, 6,7,2, 8,9,4
-            DB 6,9,4, 8,3,1, 5,2,7
-            DB 8,7,2, 5,4,9, 1,6,3
-
-            DB 7,3,5, 2,8,4, 9,1,6
-            DB 2,8,1, 3,9,6, 4,7,5
-            DB 4,6,9, 1,5,7, 3,8,2,'$'
-
-DIFICIL     DB 0,0,0, 0,7,0, 9,1,3
-            DB 0,0,2, 9,0,0, 6,0,0
-            DB 1,0,0, 6,0,0, 0,0,0
-
-            DB 0,0,0, 7,0,0, 5,3,0
-            DB 0,3,4, 5,0,0, 0,0,2
-            DB 0,8,0, 0,2,0, 0,4,9
-            
-            DB 0,2,6, 0,0,0, 0,4,0
-            DB 8,0,0, 3,0,4, 0,0,0
-            DB 0,7,0, 0,0,0, 0,9,1,'$'
-
-DIFICILR    DB 5,6,8, 4,7,2, 9,1,3
-            DB 3,4,2, 9,5,1, 6,8,7
-            DB 1,9,7, 6,3,8, 2,5,4
-            
-            DB 2,1,9, 7,4,6, 5,3,8
-            DB 7,3,4, 5,8,9, 1,6,2
-            DB 6,8,5, 1,2,3, 4,7,9
-            
-            DB 9,2,6, 8,1,7, 3,4,5
-            DB 8,5,1, 3,9,4, 7,2,6
-            DB 4,7,3, 2,6,5, 8,9,1,'$'
-
-MSG1    DB     '                  SUDOKU GAME (FACIL)',10,'$'
+MSG1    DB     '                  SUDOKU GAME ',10,'$'
 MSG2    DB 10, '        SELECIONE A DIFICULDADE:','$'
 MSG3    DB 10, '        FACIL(1) MEDIO(2) DIFICIL(3)','$'
 MSG4    DB 10, '================================================================================', '$'
-MSG5    DB     '                  SUDOKU GAME (MEDIO)',10,'$'
-MSG6    DB     '                  SUDOKU GAME (DIFICIL)',10,'$'
-MSG7    DB '         DIGITE A LINHA  :','$'
-MSG8    DB '         DIGITE A COLUNA :','$'
-MSG9    DB 'DIGITE O NUMERO DE 1 A 9 :','$'
-DIVISAO DB 179,'-------',179,'-------',179,'-------',179,'$'
+
+MSG7    DB     '         DIGITE A LINHA  :','$'
+MSG8    DB     '         DIGITE A COLUNA :','$'
+MSG9    DB     'DIGITE O NUMERO DE 1 A 9 :','$'
+MSG10   DB     'CORRETO','$'
+MSG11   DB     'ERRADO, TENTE NOVAMENTE','$'
+DIVISAO DB     179,'-------',179,'-------',179,'-------',179,'$'
 FECHA   DB     '-------------------------','$'
-
-
-        
- 
+;REGRAS  db 10,'                                  REGRAS'
+;         db 10,10,'                       Somente numeros entre 1 e 9'
+;            db 10,'                    O Sudoku eh composto por 9x9 espacos'
+;           db 10,'             O jogo termina quando todas as posicoes forem preenchidas'
+;           db 10,'              Cada quadrante 3x3 deve conter apenas numeros distintos'
+;           db 10,'                 Cada coluna deve conter apenas numeros distintos'
+;           db 10,'                 Cada linha deve conter apenas numeros  distintos','$'
 
 .CODE 
 MAIN PROC 
-        MOV AX,03
-        INT 10H
 
         MOV AX,@DATA
         MOV DS,AX 
-        LEA BX,FACIL
-        COLOR
-        CALL IMPRIME_M
-        CALL COMPARA_M
-
-        FINALIZA_PROG
+        MOV ES,AX
+        
+        CLEAN
+        CALL DIFICULDADE
+        CALL IMPRIME
+        TOPO:
+        CALL ENTRADA
+        CALL CONFERE
+        CALL CONFERE_TUDO
+        JMP TOPO
 
    MAIN ENDP 
-IMPRIME_M PROC 
+DIFICULDADE PROC 
+    ;DENOVO:
+    PRINT MSG2
+    PRINT MSG3
+    P_LINHA
+    MOV AH,01
+    INT 21H 
+    MOV CL,AL
+    SUB CL,30H
+    CMP CL,1
+    JZ PULA4 
+    CMP CL,2
+    JZ PULA5
+    CMP CL,3
+    JZ PULA6
+    ;JMP DENOVO
+    PULA4:
+    FACILMACRO
+    FACILRMACRO
+    JMP FIM1
+    PULA6:
+    JMP PULA7
+    PULA5: 
+    MEDIOMACRO
+    MEDIORMACRO
+    JMP FIM2
+    PULA7:
+    DIFICILMACRO
+    DIFICILRMACRO
+    JMP FIM3 
+
+    FIM1:
+    FIM2:
+    FIM3:
+    RET 
+    DIFICULDADE ENDP
+
+IMPRIME PROC 
+        POPMACRO
         
         PUSHMACRO
+        CLEAN 
+        COLOR
+        LEA BX,MATRIZ
         PRINT MSG4
         P_LINHA
 
-        
-        
         MOV AH,02
         MOV CX,LINHA
         
@@ -235,9 +390,7 @@ IMPRIME_M PROC
         P_LINHA
         
         CALL BARRA
-        
         ADD BX,COLUNA 
-
         LOOP VOLTA
         CALL FECHAP
          
@@ -245,14 +398,14 @@ IMPRIME_M PROC
         PRINT MSG4
         POPMACRO
         RET 
-    IMPRIME_M ENDP
+    IMPRIME ENDP
 
 
-COMPARA_M PROC 
+ENTRADA PROC 
         PUSHMACRO
         P_LINHA
         PRINT MSG7
-        MOV BX,LINHA
+        MOV BX,LINHA            ;ENTRADA DA LINHA
         MOV AH,01
         INT 21H 
         XOR AH,AH
@@ -260,34 +413,65 @@ COMPARA_M PROC
         MUL BX 
         SUB AX,9
         MOV BX,AX
-
         P_LINHA
         PRINT MSG8
-        MOV AH,01
+        MOV AH,01               ;ENTRADA DA COLUNA
         INT 21H 
         XOR AH,AH
         AND AL,0FH 
         SUB AL,1  
         MOV SI,AX
-        
         P_LINHA
         PRINT MSG9
-        MOV AH,01
+        MOV AH,01               ;ENTRADA DO DIGITO
         INT 21H 
         XOR AH,AH
         AND AL,0FH   
         
-
-        MOV FACIL[BX][SI],AL
-
+        MOV MATRIZ[BX][SI],AL    ;TROCANDO 0 PELO NUMERO DIGITADO
         POPMACRO
-        CALL IMPRIME_M
-        PUSHMACRO
-        POPMACRO
-
 
     RET 
-    COMPARA_M ENDP
+    ENTRADA ENDP
+
+CONFERE PROC 
+        PUSHMACRO
+        MOV CL,MATRIZ[BX][SI]
+        CMP CL,MATRIZR[BX][SI]
+        JNZ PULA
+        CALL IMPRIME
+        PRINT MSG10
+        JMP PULA2
+        PULA:
+        CALL IMPRIME
+        PRINT MSG11
+        PULA2:
+    
+        POPMACRO
+    RET 
+    CONFERE ENDP
+CONFERE_TUDO PROC 
+        PUSHMACRO
+        MOV CX,9
+    VOLTA5:
+        MOV DI,COLUNA
+        XOR SI,SI  
+    COL:
+        MOV DH,[BX][SI]
+        CMP DH,0
+        JZ PULA3
+        INC SI 
+                 
+        DEC DI   
+        JNZ COL
+        ADD BX,LINHA 
+        LOOP VOLTA5
+        FINALIZA_PROG
+
+        PULA3:
+    RET 
+    CONFERE_TUDO ENDP
+
 
 BARRA PROC 
         PUSHMACRO
